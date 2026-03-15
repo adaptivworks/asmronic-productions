@@ -1,0 +1,8 @@
+{
+  "name": "asmronic",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx http-server -p 3003 -c-1"
+  }
+}
