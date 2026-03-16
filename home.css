@@ -1,0 +1,243 @@
+@font-face {
+  font-family: 'SuisseIntl';
+  src: url('fonts/SuisseIntl-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SuisseIntl';
+  src: url('fonts/SuisseIntl-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-bg: #141313;
+  --color-white: #ededed;
+  --color-dim: rgba(237, 237, 237, 0.5);
+  --font-family: 'SuisseIntl', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg);
+  font-family: var(--font-family);
+  color: var(--color-white);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.header__wordmark {
+  font-size: clamp(48px, 5.5vw, 85px);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: -2px;
+  color: var(--color-white);
+  white-space: nowrap;
+}
+
+.header__wordmark-indent {
+  padding-left: 0.6em;
+}
+
+.header__wordmark sup {
+  font-size: 0.35em;
+  vertical-align: super;
+  letter-spacing: 0;
+}
+
+.header__right {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 420px;
+  padding-top: 4px;
+}
+
+.header__description {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.26;
+  letter-spacing: -0.24px;
+  color: var(--color-white);
+  max-width: 399px;
+}
+
+.header__icons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header__icon {
+  width: 20px;
+  height: auto;
+  display: block;
+}
+
+.header__icon--logo {
+  width: 24px;
+}
+
+/* ── Catalog ── */
+.catalog {
+  padding: 0 16px 24px;
+  flex-shrink: 0;
+}
+
+.catalog__header {
+  display: grid;
+  grid-template-columns: 17% 17% 140px 1fr 12%;
+  column-gap: 16px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(237, 237, 237, 0.15);
+}
+
+.catalog__col {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+}
+
+.catalog__header .catalog__col {
+  color: var(--color-dim);
+}
+
+.catalog__row {
+  display: grid;
+  grid-template-columns: 17% 17% 140px 1fr 12%;
+  column-gap: 16px;
+  align-items: start;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(237, 237, 237, 0.15);
+  text-decoration: none;
+  color: var(--color-white);
+  transition: opacity 0.2s ease;
+}
+
+.catalog__row:hover {
+  opacity: 0.7;
+}
+
+.catalog__cover {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  border-radius: 3px;
+}
+
+.catalog__col--play {
+  font-size: 42px;
+  font-weight: 500;
+  letter-spacing: -0.84px;
+  text-align: right;
+  align-self: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  body {
+    display: block;
+    height: auto;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 24px;
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .header__wordmark {
+    font-size: 36px;
+    letter-spacing: -1px;
+  }
+
+  .header__wordmark-indent {
+    padding-left: 0;
+  }
+
+  .header__right {
+    max-width: 100%;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header__description {
+    font-size: 11px;
+  }
+
+  .catalog {
+    padding: 24px 16px 60px;
+  }
+
+  .catalog__header {
+    display: none;
+  }
+
+  .catalog__row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 24px 0;
+  }
+
+  .catalog__col--cover {
+    order: -1;
+  }
+
+  .catalog__cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 4px;
+  }
+
+  .catalog__col--album {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .catalog__col--artist {
+    font-size: 14px;
+    color: var(--color-dim);
+  }
+
+  .catalog__col--year {
+    font-size: 14px;
+    color: var(--color-dim);
+  }
+
+  .catalog__col--play {
+    font-size: 32px;
+    text-align: left;
+    align-self: auto;
+  }
+}

@@ -486,3 +486,12 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// ── Hash-based album navigation (from homepage) ──
+if (window.location.hash) {
+  const albumIdx = parseInt(window.location.hash.slice(1), 10);
+  if (!isNaN(albumIdx) && albumIdx >= 0 && albumIdx < albums.length) {
+    activeAlbum = albumIdx;
+    scrollContainer.scrollTo({ top: albumIdx * window.innerHeight, behavior: 'instant' });
+  }
+}
+
