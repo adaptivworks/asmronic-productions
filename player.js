@@ -1,6 +1,30 @@
 // ── Album definitions ──
 const albums = [
   {
+    id: 'indian-bites',
+    tracks: [
+      { name: 'में',              display: 'में',                                    file: 'albums/indian-bites/0_में.mp3',                  duration: '1:59' },
+      { name: 'CHALO ft. Skhema', display: 'CHALO\u2002ft.\u2002\u2002\u2002Skhema',  file: 'albums/indian-bites/01_CHALO ft.Skhema.mp3',    duration: '2:08' },
+      { name: 'GUTKA',            display: 'GUTKA',                                  file: 'albums/indian-bites/03_GUTKA.mp3',              duration: '2:10' },
+      { name: 'HERO',             display: 'HERO',                                   file: 'albums/indian-bites/04_HERO.mp3',               duration: '2:06' },
+      { name: 'RAVI',             display: 'RAVI',                                   file: 'albums/indian-bites/05_RAVI.mp3',               duration: '2:14' },
+      { name: 'INDIGO',           display: 'INDIGO',                                 file: 'albums/indian-bites/06_INDIGO.mp3',             duration: '1:38' },
+    ],
+    videoRate: 0.5,
+  },
+  {
+    id: 'hunted-by-nothing',
+    tracks: [
+      { name: 'ONE PLACE',         display: 'ONE PLACE',                            file: 'albums/hunted-by-nothing/01 One place.mp3',            duration: '1:27', ytId: 'mUEOipHmBjY', ytStart: 3, ytRate: 0.8 },
+      { name: 'HUNTED BY NOTHING', display: 'HUNTED\u2002BY\u2002\u2002\u2002NOTHING',  file: 'albums/hunted-by-nothing/02 Hunted by nothing.mp3',    duration: '3:48', ytId: 'mUEOipHmBjY', ytStart: 460 },
+      { name: 'SEMANTICS',         display: 'SEMANTICS',                            file: 'albums/hunted-by-nothing/03 Semantics.mp3',             duration: '2:43', ytId: 'QI2IlA3ztIo', ytStart: 179 },
+      { name: 'TAD',               display: 'TAD',                                  file: 'albums/hunted-by-nothing/04 Tad.mp3',                   duration: '1:05', ytId: '4rBPgGWW0VA', ytStart: 106 },
+      { name: 'THICK OF IT',       display: 'THICK\u2002OF\u2002\u2002\u2002IT',        file: 'albums/hunted-by-nothing/05 Thick Of It.mp3',           duration: '3:15', ytId: 'OacVy8_nJi0', ytStart: 7 },
+      { name: 'HOLDING THE LINE',  display: 'HOLDING\u2002THE\u2002\u2002\u2002LINE',   file: 'albums/hunted-by-nothing/06 Holding the line.mp3',      duration: '2:10', ytId: '4rBPgGWW0VA', ytStart: 12 },
+    ],
+    videoRate: 0.42,
+  },
+  {
     id: 'havoc',
     tracks: [
       { name: 'IN',              display: 'IN',                           file: 'albums/havoc/01 IN.mp3',                  duration: '1:05' },
@@ -17,30 +41,6 @@ const albums = [
       { name: 'ASIA',            display: 'ASIA',                         file: 'albums/havoc/12 ASIA.mp3',                duration: '3:16' },
     ],
     videoRate: 0.6,
-  },
-  {
-    id: 'hunted-by-nothing',
-    tracks: [
-      { name: 'ONE PLACE',         display: 'ONE PLACE',                            file: 'albums/hunted-by-nothing/01 One place.mp3',            duration: '1:27', ytId: 'mUEOipHmBjY', ytStart: 3, ytRate: 0.8 },
-      { name: 'HUNTED BY NOTHING', display: 'HUNTED\u2002BY\u2002\u2002\u2002NOTHING',  file: 'albums/hunted-by-nothing/02 Hunted by nothing.mp3',    duration: '3:48', ytId: 'mUEOipHmBjY', ytStart: 460 },
-      { name: 'SEMANTICS',         display: 'SEMANTICS',                            file: 'albums/hunted-by-nothing/03 Semantics.mp3',             duration: '2:43', ytId: 'QI2IlA3ztIo', ytStart: 179 },
-      { name: 'TAD',               display: 'TAD',                                  file: 'albums/hunted-by-nothing/04 Tad.mp3',                   duration: '1:05', ytId: '4rBPgGWW0VA', ytStart: 106 },
-      { name: 'THICK OF IT',       display: 'THICK\u2002OF\u2002\u2002\u2002IT',        file: 'albums/hunted-by-nothing/05 Thick Of It.mp3',           duration: '3:15', ytId: 'OacVy8_nJi0', ytStart: 7 },
-      { name: 'HOLDING THE LINE',  display: 'HOLDING\u2002THE\u2002\u2002\u2002LINE',   file: 'albums/hunted-by-nothing/06 Holding the line.mp3',      duration: '2:10', ytId: '4rBPgGWW0VA', ytStart: 12 },
-    ],
-    videoRate: 0.42,
-  },
-  {
-    id: 'indian-bites',
-    tracks: [
-      { name: 'में',              display: 'में',                                    file: 'albums/indian-bites/0_में.mp3',                  duration: '1:59' },
-      { name: 'CHALO ft. Skhema', display: 'CHALO\u2002ft.\u2002\u2002\u2002Skhema',  file: 'albums/indian-bites/01_CHALO ft.Skhema.mp3',    duration: '2:08' },
-      { name: 'GUTKA',            display: 'GUTKA',                                  file: 'albums/indian-bites/03_GUTKA.mp3',              duration: '2:10' },
-      { name: 'HERO',             display: 'HERO',                                   file: 'albums/indian-bites/04_HERO.mp3',               duration: '2:06' },
-      { name: 'RAVI',             display: 'RAVI',                                   file: 'albums/indian-bites/05_RAVI.mp3',               duration: '2:14' },
-      { name: 'INDIGO',           display: 'INDIGO',                                 file: 'albums/indian-bites/06_INDIGO.mp3',             duration: '1:38' },
-    ],
-    videoRate: 0.5,
   }
 ];
 
@@ -103,8 +103,12 @@ if (toggleYtBtn) {
 
     if (isYtActive) {
       skhemaSection.classList.add('album-section--youtube-active');
-      const bgVideo = skhemaSection.querySelector('.album-section__bg-video');
-      if (bgVideo) bgVideo.pause();
+      if (window.sharedVideos && window.sharedVideos[SKHEMA_ALBUM_INDEX]) {
+        window.sharedVideos[SKHEMA_ALBUM_INDEX].pause();
+      } else {
+        const bgVideo = skhemaSection.querySelector('.album-section__bg-video');
+        if (bgVideo) bgVideo.pause();
+      }
 
       if (activeAlbum === SKHEMA_ALBUM_INDEX && currentIndex !== -1 && ytPlayer && ytPlayer.loadVideoById) {
         const t = albums[SKHEMA_ALBUM_INDEX].tracks[currentIndex];
@@ -115,8 +119,12 @@ if (toggleYtBtn) {
       skhemaSection.classList.remove('album-section--youtube-active');
       if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
       if (isPlaying && activeAlbum === SKHEMA_ALBUM_INDEX) {
-        const bgVideo = skhemaSection.querySelector('.album-section__bg-video');
-        if (bgVideo) bgVideo.play();
+        if (window.sharedVideos && window.showVideo) {
+          window.showVideo(SKHEMA_ALBUM_INDEX);
+        } else {
+          const bgVideo = skhemaSection.querySelector('.album-section__bg-video');
+          if (bgVideo) bgVideo.play();
+        }
       }
     }
   });
@@ -183,10 +191,14 @@ sections.forEach((section) => {
 startScramble();
 
 // ── Set video playback rates ──
-sections.forEach((section, idx) => {
-  const video = section.querySelector('.album-section__bg-video');
-  if (video) video.playbackRate = albums[idx].videoRate;
-});
+if (window.sharedVideos) {
+  // SPA mode: rates already set in inline script via data-rate
+} else {
+  sections.forEach((section, idx) => {
+    const video = section.querySelector('.album-section__bg-video');
+    if (video) video.playbackRate = albums[idx].videoRate;
+  });
+}
 
 // ── Track management ──
 function loadTrack(albumIdx, trackIdx) {
@@ -248,8 +260,13 @@ function play() {
   audio.play();
   isPlaying = true;
   if (!isYtActive || activeAlbum !== SKHEMA_ALBUM_INDEX) {
-    const video = sections[activeAlbum].querySelector('.album-section__bg-video');
-    if (video) video.play();
+    // Use shared videos if available (SPA mode), fallback to section videos
+    if (window.sharedVideos) {
+      window.showVideo(activeAlbum);
+    } else {
+      const video = sections[activeAlbum].querySelector('.album-section__bg-video');
+      if (video) video.play();
+    }
   } else if (isYtActive && ytPlayer && ytPlayer.playVideo) {
     ytPlayer.playVideo();
   }
@@ -259,10 +276,14 @@ function play() {
 function pause() {
   audio.pause();
   isPlaying = false;
-  sections.forEach((s) => {
-    const v = s.querySelector('.album-section__bg-video');
-    if (v) v.pause();
-  });
+  if (window.sharedVideos) {
+    window.sharedVideos.forEach(v => v.pause());
+  } else {
+    sections.forEach((s) => {
+      const v = s.querySelector('.album-section__bg-video');
+      if (v) v.pause();
+    });
+  }
   if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
   updateCursorState();
 }
@@ -437,6 +458,9 @@ scrollContainer.addEventListener('scroll', () => {
     currentIndex = -1;
     barFill.style.width = '0%';
     audio.src = '';
+
+    // Switch shared video to new album
+    if (window.showVideo) window.showVideo(newAlbum);
   }
 });
 
@@ -461,9 +485,16 @@ document.addEventListener('keydown', (e) => {
   }
   if (e.code === 'ArrowLeft') {
     e.preventDefault();
-    if (currentIndex > 0) {
-      loadTrack(activeAlbum, currentIndex - 1);
-      play();
+    // Go back to home
+    if (window.slider && window.slider.classList.contains('show-player')) {
+      window.slider.classList.remove('show-player');
+      var mh = document.getElementById('main-header');
+      if (mh) mh.classList.remove('player-active');
+      if (window.customCursor) window.customCursor.classList.add('custom-cursor--dot');
+      if (window.hideVideos) window.hideVideos();
+      audio.pause();
+      isPlaying = false;
+      updateCursorState();
     }
   }
   if (e.code === 'ArrowDown') {

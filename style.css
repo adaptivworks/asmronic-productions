@@ -21,7 +21,7 @@
 }
 
 :root {
-  --color-white: #ffffff;
+  --color-white: #E3E3E3;
   --font-family: 'SuisseIntl', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -44,6 +44,10 @@ html, body {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.header__logo {
+  cursor: pointer;
 }
 
 .header__logo-svg {
@@ -207,7 +211,7 @@ html, body {
   align-self: center;
   margin-top: -5%;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: 0;
 }
 
 .album-section__artwork-img {
@@ -215,7 +219,7 @@ html, body {
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 5px;
+  border-radius: 0;
 }
 
 /* ── Tracklist ── */

@@ -5,122 +5,762 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asmronic Productions</title>
   <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Override conflicting base styles */
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #141313;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    /* ── Shared video backgrounds ── */
+    .shared-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .shared-bg.visible {
+      opacity: 1;
+    }
+    .shared-bg video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .shared-bg video.active {
+      opacity: 1;
+    }
+    .shared-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    /* ── Fixed header — always visible on both views ── */
+    .main-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 10px 10px 16px;
+      pointer-events: none;
+    }
+    .main-header * {
+      pointer-events: auto;
+    }
+    .main-header {
+      transition: opacity 0.3s ease;
+    }
+    .main-header.player-active {
+      opacity: 0.25;
+    }
+    .main-header.player-active:hover {
+      opacity: 1;
+    }
+
+    /* ── Slide container ── */
+    .slide-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      width: 200vw;
+      height: 100vh;
+      transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+      will-change: transform;
+    }
+    .slide-container.show-player {
+      transform: translateX(-100vw);
+    }
+
+    /* ── Home view ── */
+    .view-home {
+      width: 100vw;
+      height: 100vh;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    /* Spacer to push catalog below the fixed header */
+    .view-home .header-spacer {
+      flex: 1;
+      min-height: 0;
+    }
+    .view-home .catalog {
+      position: relative;
+      z-index: auto;
+    }
+
+    /* ── Player view ── */
+    .view-player {
+      width: 100vw;
+      height: 100vh;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* ── Player grid: restore original 3-column layout ── */
+    .view-player .album-section__content {
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+    }
+
+    /* Wordmark is clickable home link */
+    .main-header .header__brand {
+      cursor: pointer;
+    }
+
+    .view-player .album-section__tracklist {
+      align-self: center;
+      margin-top: 0;
+    }
+
+    /* ── Hide YouTube toggle ── */
+    .toggle-youtube {
+      display: none !important;
+    }
+
+    /* Hide album-section bg and overlay — shared bg handles it */
+    .view-player .album-section__bg,
+    .view-player .album-section__overlay {
+      display: none;
+    }
+
+    /* Disable bg-layer (replaced by shared videos) */
+    .bg-layer { display: none !important; }
+
+    /* Fade non-hovered rows */
+    .catalog__row--faded {
+      opacity: 0.5;
+    }
+    .catalog__row:hover {
+      opacity: 1;
+    }
+
+    /* ── Mobile-only album metadata (hidden on desktop) ── */
+    .album-section__artist,
+    .album-section__year {
+      display: none;
+    }
+
+    /* ── Mobile layout (pixel-perfect from Figma 402px frame) ── */
+    @media (max-width: 768px) {
+      /* ── Reset body for scrolling ── */
+      html, body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+      }
+
+      /* Restore default cursor on mobile */
+      *, *::before, *::after {
+        cursor: auto !important;
+      }
+
+      /* Hide desktop-only elements */
+      .shared-bg,
+      .custom-cursor,
+      .cover-lightbox {
+        display: none !important;
+      }
+
+      /* ═══════════════════════════════
+         HEADER
+         Figma: icons at y=13, line at y=53,
+         wordmark at y=86 x=14 w=91%,
+         description at y=177 x=50% w=47%,
+         line at y=370
+         ═══════════════════════════════ */
+      .main-header {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 17px 11px 0 11px !important;
+        opacity: 1 !important;
+        pointer-events: auto;
+      }
+
+      .main-header.player-active {
+        opacity: 1 !important;
+      }
+
+      /* Dissolve wrapper so icons + description become direct flex children */
+      .header__right {
+        display: contents !important;
+      }
+
+      /* Icons: centered row at top — Figma: gap ~7px, sizes 17/25/31px */
+      .header__icons {
+        order: -1;
+        justify-content: center;
+        gap: 7px !important;
+        padding-bottom: 17px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        margin-bottom: 33px;
+      }
+
+      .header__icon--dot  { width: 17px !important; }
+      .header__icon--globe { width: 31px !important; }
+      .header__icon--eq   { width: 25px !important; }
+
+      /* Wordmark: Figma y=86 x=14 w=366/402=91% h=61 */
+      .header__brand {
+        order: 0;
+      }
+
+      .header__wordmark {
+        width: 91% !important;
+        margin-top: 0 !important;
+      }
+
+      /* Description: Figma y=177 x=201 (50%) w=190 (47%)
+         30px below wordmark, right-aligned, 12px/15.12px */
+      .header__description {
+        order: 1;
+        margin-left: auto;
+        width: 47.3%;
+        margin-top: 30px !important;
+        font-size: 12px !important;
+        line-height: 15.12px !important;
+        letter-spacing: -0.24px !important;
+        font-weight: 400 !important;
+      }
+
+      /* Bottom line: Figma y=370, 33px below description */
+      .main-header::after {
+        content: '';
+        display: block;
+        order: 2;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.15);
+        margin-top: 33px;
+      }
+
+      /* ═══════════════════════════════
+         DISABLE SLIDE MECHANIC
+         ═══════════════════════════════ */
+      .slide-container {
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        transform: none !important;
+      }
+
+      .slide-container.show-player {
+        transform: none !important;
+      }
+
+      .view-home {
+        display: none !important;
+      }
+
+      .view-player {
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      .scroll-container {
+        height: auto !important;
+        overflow: visible !important;
+        scroll-snap-type: none !important;
+      }
+
+      /* ═══════════════════════════════
+         ALBUM SECTIONS
+         Figma: 27px top padding, separator lines
+         ═══════════════════════════════ */
+      .album-section {
+        height: auto !important;
+        scroll-snap-align: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .album-section__bg,
+      .album-section__overlay {
+        display: none !important;
+      }
+
+      /* Album content grid:
+         Figma: info at x=10, cover at x=201 (50%), 190px wide
+         Row 1: info + cover side by side
+         Row 2: tracklist full width, 64px below cover */
+      .view-player .album-section__content {
+        display: grid !important;
+        grid-template-columns: 1fr 47.3% !important;
+        grid-template-rows: auto auto !important;
+        row-gap: 64px !important;
+        column-gap: 0 !important;
+        padding: 27px 11px 25px 10px !important;
+        align-items: start !important;
+        height: auto !important;
+      }
+
+      /* Info block: Figma left=10, top-aligned with cover */
+      .album-section__info {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        align-self: start !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Title: Figma 15px medium, -0.3px tracking, 16px leading */
+      .album-section__title {
+        font-size: 15px !important;
+        font-weight: 500 !important;
+        letter-spacing: -0.3px !important;
+        line-height: 16px !important;
+        white-space: normal !important;
+        color: #ededed !important;
+      }
+
+      /* Artist: Figma 13px medium, #5d5d5d, 16px leading */
+      .album-section__artist {
+        display: block !important;
+        font-size: 13px;
+        font-weight: 500;
+        color: #5d5d5d;
+        letter-spacing: -0.3px;
+        line-height: 16px;
+      }
+
+      /* Year: Figma 15px medium, #ededed, 18px leading, small gap above */
+      .album-section__year {
+        display: block !important;
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: -0.3px;
+        color: #ededed;
+        line-height: 18px;
+        margin-top: 2px;
+      }
+
+      /* Cover: Figma 190×190, right column */
+      .album-section__artwork {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1 !important;
+        margin-top: 0 !important;
+        align-self: start !important;
+        pointer-events: none !important;
+      }
+
+      /* Tracklist: Figma full width below cover, 12px, 19px leading, -0.24px tracking */
+      .album-section__tracklist {
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+        margin-top: 0 !important;
+        width: 100% !important;
+        align-self: start !important;
+      }
+
+      .album-section__track {
+        line-height: 19px !important;
+        padding: 0 !important;
+        color: #ededed !important;
+      }
+
+      .album-section__track-name {
+        width: auto !important;
+        flex: 1 !important;
+        font-size: 12px !important;
+        font-weight: 400 !important;
+        letter-spacing: -0.24px !important;
+      }
+
+      .album-section__track-duration {
+        font-size: 12px !important;
+        font-weight: 400 !important;
+        letter-spacing: -0.24px !important;
+      }
+
+      .album-section__track-marker {
+        font-size: 12px !important;
+        width: 12px !important;
+      }
+
+      /* Progress bar */
+      .bar {
+        z-index: 200;
+      }
+
+      /* Hide YouTube elements */
+      .toggle-youtube,
+      .album-section__bg-youtube {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
-  <header class="header">
+  <!-- Fixed header — stays on top of both home and player views -->
+  <header class="main-header" id="main-header">
     <div class="header__brand">
-      <h1 class="header__wordmark">ASMRONIC<sup>&trade;</sup><br><span class="header__wordmark-indent">PRODUCTIONS</span></h1>
+      <img src="assets/wordmark.svg" alt="ASMRONIC™ PRODUCTIONS" class="header__wordmark">
     </div>
     <div class="header__right">
       <p class="header__description">
         Asmronic&trade; is an experimental music genre drawing from IDM, ambient, glitch and electronic music. The fusion of these styles crafts a sonic landscape aimed at stimulating the mind to evoke emotions and provoke reactions. It embraces the unfinished, the glitches and the rawness of creation, reflecting the authentic imperfect aspects of sounds.
       </p>
       <div class="header__icons">
-        <!-- Asmronic logo mark -->
-        <svg viewBox="0 0 51.84 10.5984" fill="none" xmlns="http://www.w3.org/2000/svg" class="header__icon header__icon--logo">
-          <rect x="17.7797" y="5.29922" width="2.6112" height="5.29916" fill="white"/>
-          <rect x="7.56406" y="5.29922" width="2.6112" height="5.29912" fill="white"/>
-          <rect x="30.6063" width="2.6112" height="10.5983" fill="white"/>
-          <rect x="20.3898" width="2.6112" height="5.29916" fill="white"/>
-          <path d="M4.4928 0H7.5648L3.072 5.29916H0L4.4928 0Z" fill="white"/>
-          <path d="M14.6686 0H17.7406L13.2478 5.29916H10.1758L14.6686 0Z" fill="white"/>
-          <path d="M27.5725 0H30.6445L26.1517 5.29916H23.0797L27.5725 0Z" fill="white"/>
-          <path d="M33.6775 0H30.6055L35.0983 5.29916H38.1703L33.6775 0Z" fill="white"/>
-          <path d="M39.6264 0.000537109H42.6984L38.2056 5.2997H35.1336L39.6264 0.000537109Z" fill="white"/>
-          <path d="M41.2412 5.29922H44.3132L39.8204 10.5984H36.7484L41.2412 5.29922Z" fill="white"/>
-          <path d="M47.347 5.22246H44.275L48.7678 10.5216H51.8398L47.347 5.22246Z" fill="white"/>
-          <path d="M45.7334 0H48.8438L44.351 5.29916H41.2406L45.7334 0Z" fill="white"/>
-          <path d="M13.2478 5.29922H10.1758L14.6686 10.5984H17.7406L13.2478 5.29922Z" fill="white"/>
-          <path d="M26.1517 5.29922H23.0797L27.5725 10.5984H30.6445L26.1517 5.29922Z" fill="white"/>
-          <path d="M4.4928 5.29922H7.5648L3.072 10.5984H0L4.4928 5.29922Z" fill="white"/>
-        </svg>
-        <!-- Equalizer -->
-        <svg viewBox="0 0 17.2245 12.1648" fill="none" xmlns="http://www.w3.org/2000/svg" class="header__icon">
-          <circle cx="0.993118" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="0.993118" cy="8.6271" r="0.993118" fill="white"/>
-          <circle cx="0.993118" cy="6.08213" r="0.993118" fill="white"/>
-          <circle cx="3.81656" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="3.81656" cy="8.6271" r="0.993118" fill="white"/>
-          <circle cx="3.81656" cy="6.08213" r="0.993118" fill="white"/>
-          <circle cx="3.81656" cy="3.53765" r="0.993118" fill="white"/>
-          <circle cx="3.81656" cy="0.993118" r="0.993118" fill="white"/>
-          <circle cx="6.29937" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="6.29937" cy="8.6271" r="0.993118" fill="white"/>
-          <circle cx="8.78218" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="8.78218" cy="8.6271" r="0.993118" fill="white"/>
-          <circle cx="8.78218" cy="6.08213" r="0.993118" fill="white"/>
-          <circle cx="8.78218" cy="3.53765" r="0.993118" fill="white"/>
-          <circle cx="11.265" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="11.265" cy="8.6271" r="0.993118" fill="white"/>
-          <circle cx="11.265" cy="6.08213" r="0.993118" fill="white"/>
-          <circle cx="13.7478" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="13.7478" cy="8.6271" r="0.993118" fill="white"/>
-          <circle cx="13.7478" cy="6.08213" r="0.993118" fill="white"/>
-          <circle cx="13.7478" cy="3.53765" r="0.993118" fill="white"/>
-          <circle cx="16.2314" cy="11.1716" r="0.993118" fill="white"/>
-          <circle cx="16.2314" cy="8.6271" r="0.993118" fill="white"/>
-        </svg>
-        <!-- Globe -->
-        <svg viewBox="0 0 21.4994 12.9049" fill="none" xmlns="http://www.w3.org/2000/svg" class="header__icon">
-          <path d="M10.6801 9.64815C10.1355 9.64906 9.63743 9.52376 9.186 9.27226C8.73458 9.01884 8.3776 8.67449 8.11506 8.23922C7.85444 7.80393 7.72369 7.32544 7.72282 6.80373C7.72194 6.2782 7.85109 5.79736 8.11027 5.36121C8.37135 4.92315 8.72718 4.57666 9.17776 4.32174C9.62834 4.06682 10.1259 3.93891 10.6706 3.938C11.2114 3.9371 11.7066 4.06336 12.1561 4.31678C12.6056 4.5702 12.9607 4.9155 13.2213 5.3527C13.4819 5.78798 13.6127 6.26838 13.6136 6.79392C13.6144 7.31563 13.4853 7.79456 13.2261 8.2307C12.9669 8.66685 12.613 9.01238 12.1643 9.2673C11.7157 9.5203 11.2209 9.64725 10.6801 9.64815ZM10.6791 9.02898C11.1014 9.02828 11.4863 8.93017 11.8338 8.73467C12.1813 8.53916 12.4541 8.27116 12.6523 7.93067C12.8524 7.59017 12.9521 7.21162 12.9514 6.79502C12.9507 6.3765 12.8497 5.99638 12.6485 5.65464C12.4492 5.31289 12.1755 5.04389 11.8273 4.84764C11.4792 4.65138 11.094 4.55361 10.6716 4.55431C10.2455 4.55502 9.85768 4.65408 9.50829 4.8515C9.16081 5.04892 8.88703 5.31883 8.68694 5.66124C8.48877 6.00364 8.39003 6.3841 8.39072 6.80262C8.39142 7.21922 8.49142 7.59744 8.69073 7.93727C8.89196 8.2771 9.16664 8.54419 9.51477 8.73853C9.86481 8.93287 10.2529 9.02969 10.6791 9.02898ZM9.51967 8.23688L9.51478 5.3044L10.8621 5.30216C11.0818 5.30179 11.272 5.33492 11.4327 5.40154C11.5933 5.46816 11.7167 5.56541 11.8029 5.69331C11.8891 5.8193 11.9324 5.97211 11.9327 6.15174C11.9329 6.29507 11.8997 6.42507 11.833 6.54176C11.7663 6.65653 11.6652 6.75034 11.5296 6.82319C11.3941 6.89412 11.225 6.93549 11.0225 6.94729L11.0278 6.73516C11.2457 6.74053 11.4139 6.77274 11.5325 6.83178C11.653 6.89082 11.7363 6.96999 11.7823 7.06929C11.8302 7.16858 11.8601 7.29275 11.8718 7.44179L11.8954 7.84307C11.9013 7.93288 11.9138 8.00739 11.933 8.0666C11.9541 8.1258 11.9838 8.18117 12.0222 8.23271L11.2941 8.23392C11.2615 8.18811 11.2385 8.1356 11.225 8.07638C11.2115 8.01524 11.2018 7.93786 11.1959 7.84423L11.1725 7.53755C11.1647 7.43819 11.1483 7.36178 11.1234 7.30831C11.1004 7.25484 11.063 7.21668 11.0114 7.19383C10.9617 7.17098 10.8919 7.15963 10.8021 7.15978L9.83893 7.16139L9.83798 6.59381L10.8269 6.59217C10.9091 6.59203 10.9779 6.57854 11.0333 6.55169C11.0905 6.52293 11.1335 6.48273 11.1621 6.43108C11.1906 6.37752 11.2049 6.31444 11.2047 6.24182C11.2046 6.16538 11.1892 6.10138 11.1586 6.04984C11.1298 5.99829 11.0848 5.95918 11.0236 5.93253C10.9643 5.90588 10.8898 5.89262 10.8 5.89277L10.0145 5.89408L10.2206 5.70741L10.2248 8.2357L9.51967 8.23688Z" fill="white"/>
-          <path d="M10.7503 0.220721C13.6851 0.220795 16.3313 0.935617 18.2366 2.07912C20.1464 3.22543 21.2785 4.77865 21.2786 6.45217C21.2786 8.12578 20.1465 9.67884 18.2366 10.8252C16.3313 11.9688 13.6852 12.6835 10.7503 12.6836C7.81524 12.6836 5.16843 11.9689 3.26301 10.8252C1.35319 9.67884 0.221021 8.12578 0.221021 6.45217C0.221146 4.77865 1.35329 3.22543 3.26301 2.07912C5.16842 0.935543 7.81537 0.220721 10.7503 0.220721Z" stroke="white" stroke-width="0.442368"/>
-          <path d="M10.6679 0.220721C13.0182 0.220721 15.1375 0.9309 16.664 2.0674C18.1904 3.20386 19.1131 4.75641 19.1132 6.45217C19.1132 8.14803 18.1905 9.70138 16.664 10.8379C15.1375 11.9743 13.018 12.6836 10.6679 12.6836C8.31774 12.6835 6.19822 11.9744 4.6718 10.8379C3.14541 9.70139 2.22258 8.14797 2.22258 6.45217C2.22268 4.75655 3.14561 3.20384 4.6718 2.0674C6.19822 0.930922 8.31774 0.220788 10.6679 0.220721Z" stroke="white" stroke-width="0.442368"/>
-          <circle cx="10.7484" cy="6.43567" r="6.09098" stroke="white" stroke-width="0.442368"/>
-          <line x1="0.130005" y1="6.71335" x2="4.75595" y2="6.71336" stroke="white" stroke-width="0.442368"/>
-          <line x1="1.18547" y1="3.72385" x2="5.29444" y2="3.72385" stroke="white" stroke-width="0.442368"/>
-          <line x1="1.77532" y1="9.67883" x2="5.61407" y2="9.67883" stroke="white" stroke-width="0.442368"/>
-          <line x1="15.8761" y1="9.67883" x2="19.7149" y2="9.67883" stroke="white" stroke-width="0.442368"/>
-          <line x1="16.2495" y1="3.72385" x2="20.3585" y2="3.72385" stroke="white" stroke-width="0.442368"/>
-          <line x1="16.6605" y1="6.71335" x2="21.2621" y2="6.71335" stroke="white" stroke-width="0.442368"/>
-        </svg>
+        <img src="assets/icon-dot.svg" alt="" class="header__icon header__icon--dot">
+        <img src="assets/icon-globe.svg" alt="" class="header__icon header__icon--globe">
+        <img src="assets/icon-eq.svg" alt="" class="header__icon header__icon--eq">
       </div>
     </div>
   </header>
 
-  <main class="catalog">
-    <!-- Column headers -->
-    <div class="catalog__header">
-      <span class="catalog__col catalog__col--album">ALBUM</span>
-      <span class="catalog__col catalog__col--artist">ARTIST</span>
-      <span class="catalog__col catalog__col--cover"></span>
-      <span class="catalog__col catalog__col--year">YEAR</span>
-      <span class="catalog__col catalog__col--play"></span>
+  <!-- Shared video backgrounds — one per album, only active one is visible -->
+  <div class="shared-bg" id="shared-bg">
+    <video id="vid-0" loop muted playsinline preload="auto" data-rate="0.5">
+      <source src="albums/indian-bites/video.mp4" type="video/mp4">
+    </video>
+    <video id="vid-1" loop muted playsinline preload="auto" data-rate="0.42">
+      <source src="albums/hunted-by-nothing/video.mp4" type="video/mp4">
+    </video>
+    <video id="vid-2" loop muted playsinline preload="auto" data-rate="0.6">
+      <source src="albums/havoc/video.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Both views side by side -->
+  <div class="slide-container" id="slide-container">
+
+    <!-- HOME VIEW -->
+    <div class="view-home">
+      <div class="header-spacer"></div>
+
+      <main class="catalog">
+        <div class="catalog__header">
+          <span class="catalog__col catalog__col--album">ALBUM</span>
+          <span class="catalog__col catalog__col--artist">ARTIST</span>
+          <span class="catalog__col catalog__col--cover"></span>
+          <span class="catalog__col catalog__col--gap"></span>
+          <span class="catalog__col catalog__col--year">YEAR</span>
+          <span class="catalog__col catalog__col--play"></span>
+        </div>
+
+        <a href="#" class="catalog__row" data-album="0">
+          <span class="catalog__col catalog__col--album">INDIANBITES</span>
+          <span class="catalog__col catalog__col--artist">MIOPE Ft. Skhēma</span>
+          <span class="catalog__col catalog__col--cover">
+            <img src="albums/indian-bites/MIOPE - INDIAN BITES.jpg" alt="INDIANBITES" class="catalog__cover">
+          </span>
+          <span class="catalog__col catalog__col--gap"></span>
+          <span class="catalog__col catalog__col--year">2025</span>
+          <span class="catalog__col catalog__col--play">PLAY</span>
+        </a>
+
+        <a href="#" class="catalog__row" data-album="1">
+          <span class="catalog__col catalog__col--album">Hunted by nothing</span>
+          <span class="catalog__col catalog__col--artist">Skhēma</span>
+          <span class="catalog__col catalog__col--cover">
+            <img src="albums/hunted-by-nothing/cover.jpg" alt="Hunted by nothing" class="catalog__cover">
+          </span>
+          <span class="catalog__col catalog__col--gap"></span>
+          <span class="catalog__col catalog__col--year">2024</span>
+          <span class="catalog__col catalog__col--play">PLAY</span>
+        </a>
+
+        <a href="#" class="catalog__row" data-album="2">
+          <span class="catalog__col catalog__col--album">HAVOC</span>
+          <span class="catalog__col catalog__col--artist">MIOPE Ft. Skhēma</span>
+          <span class="catalog__col catalog__col--cover">
+            <img src="albums/havoc/cover.jpg" alt="HAVOC" class="catalog__cover">
+          </span>
+          <span class="catalog__col catalog__col--gap"></span>
+          <span class="catalog__col catalog__col--year">2024</span>
+          <span class="catalog__col catalog__col--play">PLAY</span>
+        </a>
+      </main>
     </div>
 
-    <!-- Row 1: HAVOC -->
-    <a href="player.html#0" class="catalog__row">
-      <span class="catalog__col catalog__col--album">HAVOC</span>
-      <span class="catalog__col catalog__col--artist">MIOPE Ft. Skhema</span>
-      <span class="catalog__col catalog__col--cover">
-        <img src="albums/havoc/cover.jpg" alt="HAVOC" class="catalog__cover">
-      </span>
-      <span class="catalog__col catalog__col--year">2024</span>
-      <span class="catalog__col catalog__col--play">PLAY</span>
-    </a>
+    <!-- PLAYER VIEW -->
+    <div class="view-player">
 
-    <!-- Row 2: Hunted by nothing -->
-    <a href="player.html#1" class="catalog__row">
-      <span class="catalog__col catalog__col--album">Hunted by nothing</span>
-      <span class="catalog__col catalog__col--artist">Skhema</span>
-      <span class="catalog__col catalog__col--cover">
-        <img src="albums/hunted-by-nothing/cover.jpg" alt="Hunted by nothing" class="catalog__cover">
-      </span>
-      <span class="catalog__col catalog__col--year">2024</span>
-      <span class="catalog__col catalog__col--play">PLAY</span>
-    </a>
+      <div class="scroll-container">
+        <!-- SECTION 1: Indian Bites -->
+        <section class="album-section" data-album="0" style="--color-dimmed: #FB7BA2;">
+          <div class="album-section__bg"></div>
+          <div class="album-section__overlay"></div>
+          <main class="album-section__content">
+            <div class="album-section__info">
+              <h1 class="album-section__title">INDIA<span style="opacity: 0.3;">N</span>BITES</h1>
+              <p class="album-section__artist">MIOPE Ft. Skhēma</p>
+              <p class="album-section__year">2025</p>
+            </div>
+            <div class="album-section__artwork">
+              <img src="albums/indian-bites/MIOPE - INDIAN BITES.jpg" alt="Indian Bites" class="album-section__artwork-img">
+            </div>
+            <div class="album-section__tracklist">
+              <ul class="album-section__tracks">
+                <li class="album-section__track" data-index="0"><span class="album-section__track-marker"></span><span class="album-section__track-name">में</span><span class="album-section__track-duration">2:10</span></li>
+                <li class="album-section__track" data-index="1"><span class="album-section__track-marker"></span><span class="album-section__track-name">CHALO&ensp;ft.&ensp;&ensp;&ensp;Skhema</span><span class="album-section__track-duration">2:10</span></li>
+                <li class="album-section__track" data-index="2"><span class="album-section__track-marker"></span><span class="album-section__track-name">GUTKA</span><span class="album-section__track-duration">2:10</span></li>
+                <li class="album-section__track" data-index="3"><span class="album-section__track-marker"></span><span class="album-section__track-name">HERO</span><span class="album-section__track-duration">2:10</span></li>
+                <li class="album-section__track" data-index="4"><span class="album-section__track-marker"></span><span class="album-section__track-name">RAVI</span><span class="album-section__track-duration">2:10</span></li>
+                <li class="album-section__track" data-index="5"><span class="album-section__track-marker"></span><span class="album-section__track-name">INDIGO</span><span class="album-section__track-duration">1:38</span></li>
+              </ul>
+            </div>
+          </main>
+        </section>
 
-    <!-- Row 3: INDIANBITES -->
-    <a href="player.html#2" class="catalog__row">
-      <span class="catalog__col catalog__col--album">INDIANBITES</span>
-      <span class="catalog__col catalog__col--artist">MIOPE Ft. Skhema</span>
-      <span class="catalog__col catalog__col--cover">
-        <img src="albums/indian-bites/cover.jpg" alt="INDIANBITES" class="catalog__cover">
-      </span>
-      <span class="catalog__col catalog__col--year">2025</span>
-      <span class="catalog__col catalog__col--play">PLAY</span>
-    </a>
-  </main>
+        <!-- SECTION 2: Hunted by Nothing -->
+        <section class="album-section" data-album="1" style="--color-dimmed: #404a4a;">
+          <div class="album-section__bg"></div>
+          <div class="album-section__overlay"></div>
+          <div class="toggle-youtube" style="display:none!important"></div>
+          <div class="album-section__bg-youtube" style="display:none!important"><div id="yt-bg-player"></div></div>
+          <main class="album-section__content">
+            <div class="album-section__info">
+              <h1 class="album-section__title">Hunted&ensp;&ensp;by&ensp;&ensp;&ensp;&ensp;nothing</h1>
+              <p class="album-section__artist">Skhēma</p>
+              <p class="album-section__year">2024</p>
+            </div>
+            <div class="album-section__artwork">
+              <img src="albums/hunted-by-nothing/cover.jpg" alt="Hunted by Nothing" class="album-section__artwork-img">
+            </div>
+            <div class="album-section__tracklist">
+              <ul class="album-section__tracks">
+                <li class="album-section__track" data-index="0"><span class="album-section__track-marker"></span><span class="album-section__track-name">ONE PLACE</span><span class="album-section__track-duration">1:27</span></li>
+                <li class="album-section__track" data-index="1"><span class="album-section__track-marker"></span><span class="album-section__track-name">HUNTED&ensp;BY&ensp;&ensp;&ensp;NOTHING</span><span class="album-section__track-duration">3:48</span></li>
+                <li class="album-section__track" data-index="2"><span class="album-section__track-marker"></span><span class="album-section__track-name">SEMANTICS</span><span class="album-section__track-duration">2:43</span></li>
+                <li class="album-section__track" data-index="3"><span class="album-section__track-marker"></span><span class="album-section__track-name">TAD</span><span class="album-section__track-duration">1:05</span></li>
+                <li class="album-section__track" data-index="4"><span class="album-section__track-marker"></span><span class="album-section__track-name">THICK&ensp;OF&ensp;&ensp;&ensp;IT</span><span class="album-section__track-duration">3:15</span></li>
+                <li class="album-section__track" data-index="5"><span class="album-section__track-marker"></span><span class="album-section__track-name">HOLDING&ensp;THE&ensp;&ensp;&ensp;LINE</span><span class="album-section__track-duration">2:10</span></li>
+              </ul>
+            </div>
+          </main>
+        </section>
+
+        <!-- SECTION 3: HAVOC -->
+        <section class="album-section" data-album="2" style="--color-dimmed: #5AC078;">
+          <div class="album-section__bg"></div>
+          <div class="album-section__overlay"></div>
+          <main class="album-section__content">
+            <div class="album-section__info">
+              <h1 class="album-section__title">HAVOC</h1>
+              <p class="album-section__artist">MIOPE Ft. Skhēma</p>
+              <p class="album-section__year">2024</p>
+            </div>
+            <div class="album-section__artwork">
+              <img src="albums/havoc/cover.jpg" alt="HAVOC" class="album-section__artwork-img">
+            </div>
+            <div class="album-section__tracklist">
+              <ul class="album-section__tracks">
+                <li class="album-section__track" data-index="0"><span class="album-section__track-marker"></span><span class="album-section__track-name">IN</span><span class="album-section__track-duration">1:05</span></li>
+                <li class="album-section__track" data-index="1"><span class="album-section__track-marker"></span><span class="album-section__track-name">HAVOC</span><span class="album-section__track-duration">2:42</span></li>
+                <li class="album-section__track" data-index="2"><span class="album-section__track-marker"></span><span class="album-section__track-name">DAFNE</span><span class="album-section__track-duration">2:42</span></li>
+                <li class="album-section__track" data-index="3"><span class="album-section__track-marker"></span><span class="album-section__track-name">WIPERS&ensp;-&ensp;&ensp;&ensp;Int.</span><span class="album-section__track-duration">0:32</span></li>
+                <li class="album-section__track" data-index="4"><span class="album-section__track-marker"></span><span class="album-section__track-name">UNEVEN</span><span class="album-section__track-duration">2:43</span></li>
+                <li class="album-section__track" data-index="5"><span class="album-section__track-marker"></span><span class="album-section__track-name">ANTICS</span><span class="album-section__track-duration">3:15</span></li>
+                <li class="album-section__track" data-index="6"><span class="album-section__track-marker"></span><span class="album-section__track-name">DRUNKEN&ensp;&ensp;&ensp;BAKER</span><span class="album-section__track-duration">1:38</span></li>
+                <li class="album-section__track" data-index="7"><span class="album-section__track-marker"></span><span class="album-section__track-name">HALVED</span><span class="album-section__track-duration">0:34</span></li>
+                <li class="album-section__track" data-index="8"><span class="album-section__track-marker"></span><span class="album-section__track-name">AMBIEN</span><span class="album-section__track-duration">2:51</span></li>
+                <li class="album-section__track" data-index="9"><span class="album-section__track-marker"></span><span class="album-section__track-name">CHASE</span><span class="album-section__track-duration">2:10</span></li>
+                <li class="album-section__track" data-index="10"><span class="album-section__track-marker"></span><span class="album-section__track-name">OUT&ensp;-&ensp;&ensp;&ensp;Int.</span><span class="album-section__track-duration">0:32</span></li>
+                <li class="album-section__track" data-index="11"><span class="album-section__track-marker"></span><span class="album-section__track-name">ASIA</span><span class="album-section__track-duration">3:16</span></li>
+              </ul>
+            </div>
+          </main>
+        </section>
+      </div>
+
+      <audio id="audio" preload="metadata"></audio>
+    </div>
+
+  </div><!-- /slide-container -->
+
+  <!-- Playback progress bar — outside slide-container so position:fixed works -->
+  <div class="bar" id="playback-bar">
+    <div class="bar__progress">
+      <div class="bar__fill"></div>
+    </div>
+  </div>
+
+  <!-- Lightbox — outside slide-container so position:fixed works correctly -->
+  <div class="cover-lightbox" id="cover-lightbox">
+    <img class="cover-lightbox__img" id="cover-lightbox-img" src="" alt="">
+  </div>
+
+  <!-- Custom cursor — outside slide-container so it works on both views -->
+  <div class="custom-cursor custom-cursor--dot" id="custom-cursor">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path class="cursor-play" d="M8 5v14l11-7z" />
+      <path class="cursor-pause" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+    </svg>
+  </div>
+
+  <script>
+  (function() {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    // ── Video management ──
+    const videos = [
+      document.getElementById('vid-0'),
+      document.getElementById('vid-1'),
+      document.getElementById('vid-2')
+    ];
+    let activeVideoIdx = -1;
+
+    // Set playback rates (desktop only)
+    if (!isMobile) {
+      videos.forEach(v => {
+        v.playbackRate = parseFloat(v.dataset.rate);
+      });
+    }
+
+    function showVideo(idx) {
+      if (isMobile) return;
+      if (idx === activeVideoIdx) return;
+      videos.forEach((v, i) => {
+        if (i === idx) {
+          v.classList.add('active');
+          v.play();
+        } else {
+          v.classList.remove('active');
+          v.pause();
+        }
+      });
+      activeVideoIdx = idx;
+    }
+
+    // ── View switching ──
+    const slider = document.getElementById('slide-container');
+    const rows = document.querySelectorAll('.catalog__row');
+    const sc = document.querySelector('.scroll-container');
+    const sharedBg = document.getElementById('shared-bg');
+    const catalog = document.querySelector('.catalog');
+    const customCursor = document.getElementById('custom-cursor');
+
+    function hideVideos() {
+      if (isMobile) return;
+      sharedBg.classList.remove('visible');
+      videos.forEach(v => { v.pause(); v.classList.remove('active'); });
+      activeVideoIdx = -1;
+    }
+
+    function goBack() {
+      if (isMobile) return;
+      slider.classList.remove('show-player');
+      document.getElementById('main-header').classList.remove('player-active');
+      customCursor.classList.add('custom-cursor--dot');
+      hideVideos();
+      const audioEl = document.getElementById('audio');
+      if (audioEl) { audioEl.pause(); }
+    }
+
+    // Desktop-only: cursor tracking, catalog hovers, slide navigation, header interactions
+    if (!isMobile) {
+      document.addEventListener('mousemove', (e) => {
+        if (customCursor) {
+          customCursor.style.left = e.clientX + 'px';
+          customCursor.style.top = e.clientY + 'px';
+        }
+      });
+
+      rows.forEach(row => {
+        row.addEventListener('mouseenter', () => {
+          const idx = parseInt(row.dataset.album, 10);
+          sharedBg.classList.add('visible');
+          showVideo(idx);
+          rows.forEach(r => {
+            if (r !== row) r.classList.add('catalog__row--faded');
+          });
+        });
+        row.addEventListener('mouseleave', () => {
+          rows.forEach(r => r.classList.remove('catalog__row--faded'));
+        });
+      });
+
+      catalog.addEventListener('mouseleave', () => {
+        if (!slider.classList.contains('show-player')) {
+          hideVideos();
+        }
+      });
+
+      rows.forEach(row => {
+        row.addEventListener('click', (e) => {
+          e.preventDefault();
+          const idx = parseInt(row.dataset.album, 10);
+          sharedBg.classList.add('visible');
+          showVideo(idx);
+          sc.scrollTo({ top: idx * window.innerHeight, behavior: 'instant' });
+          slider.classList.add('show-player');
+          document.getElementById('main-header').classList.add('player-active');
+          customCursor.classList.remove('custom-cursor--dot');
+          customCursor.classList.add('custom-cursor--paused');
+        });
+      });
+
+      const mainHeader = document.getElementById('main-header');
+      mainHeader.addEventListener('click', () => {
+        if (slider.classList.contains('show-player')) {
+          goBack();
+        }
+      });
+
+      mainHeader.addEventListener('mouseenter', () => {
+        if (slider.classList.contains('show-player') && customCursor) {
+          customCursor.classList.add('custom-cursor--dot');
+        }
+      });
+      mainHeader.addEventListener('mouseleave', () => {
+        if (slider.classList.contains('show-player') && customCursor) {
+          customCursor.classList.remove('custom-cursor--dot');
+        }
+      });
+    }
+
+    // Expose shared videos globally so player.js can control them
+    window.sharedVideos = videos;
+    window.showVideo = showVideo;
+    window.hideVideos = hideVideos;
+    window.sharedBg = sharedBg;
+    window.customCursor = isMobile ? null : customCursor;
+    window.slider = slider;
+  })();
+  </script>
+
+  <!-- Error capture -->
+  <script>
+    window.__errors = [];
+    window.addEventListener('error', function(e) {
+      window.__errors.push(e.message + ' | ' + e.filename + ':' + e.lineno);
+    });
+  </script>
+  <!-- Player JS (load before YouTube API to avoid race condition) -->
+  <script src="player.js?v=5"></script>
+  <!-- YouTube API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 
 </body>
 </html>
