@@ -4,7 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asmronic</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css?v=2">
+  <style>
+    html { overflow-x: hidden; }
+    body {
+      transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+      will-change: transform;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+    body.slide-out-right {
+      transform: translateX(100vw);
+    }
+  </style>
 </head>
 <body>
 
@@ -76,7 +89,7 @@
     <!-- SECTION 1: HAVOC -->
     <section class="album-section" data-album="0" style="--color-dimmed: #5AC078;">
       <div class="album-section__bg">
-        <video class="album-section__bg-video" autoplay loop muted playsinline>
+        <video class="album-section__bg-video" loop muted playsinline preload="auto">
           <source src="albums/havoc/video.mp4" type="video/mp4">
         </video>
       </div>
@@ -110,7 +123,7 @@
     <!-- SECTION 2: Hunted by Nothing -->
     <section class="album-section" data-album="1" style="--color-dimmed: #404a4a;">
       <div class="album-section__bg">
-        <video class="album-section__bg-video" autoplay loop muted playsinline>
+        <video class="album-section__bg-video" loop muted playsinline preload="auto">
           <source src="albums/hunted-by-nothing/video.mp4" type="video/mp4">
         </video>
         <div id="yt-bg-player" class="album-section__bg-youtube"></div>
@@ -140,7 +153,7 @@
     <!-- SECTION 3: Indian Bites -->
     <section class="album-section" data-album="2" style="--color-dimmed: #FB7BA2;">
       <div class="album-section__bg">
-        <video class="album-section__bg-video" autoplay loop muted playsinline>
+        <video class="album-section__bg-video" loop muted playsinline preload="auto">
           <source src="albums/indian-bites/video.mp4" type="video/mp4">
         </video>
       </div>
@@ -191,5 +204,22 @@
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script src="player.js?v=2"></script>
+  <script>
+    // Clear transition flag on arrival
+    if (sessionStorage.getItem('page-transition') === 'forward') {
+      sessionStorage.removeItem('page-transition');
+    }
+
+    // Back to homepage: slide out to the right
+    let navigating = false;
+    document.querySelector('.header__logo').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (navigating) return;
+      navigating = true;
+      sessionStorage.setItem('page-transition', 'back');
+      document.body.classList.add('slide-out-right');
+      setTimeout(() => { window.location.href = 'index.html'; }, 600);
+    });
+  </script>
 </body>
 </html>

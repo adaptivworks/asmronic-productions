@@ -494,6 +494,14 @@ html, body {
     width: 12px;
   }
 
+  .album-section__track {
+    color: rgba(227, 227, 227, 0.5);
+  }
+
+  .album-section__track--active {
+    color: var(--color-white);
+  }
+
   .cover-lightbox {
     display: none !important;
   }
