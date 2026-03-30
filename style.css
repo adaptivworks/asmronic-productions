@@ -247,7 +247,7 @@ html, body {
 }
 
 .album-section__track-marker {
-  font-size: 15.3px;
+  font-size: 15px;
   font-weight: 500;
   width: 15px;
   flex-shrink: 0;
@@ -272,7 +272,7 @@ html, body {
 }
 
 .album-section__track-name {
-  font-size: 15.3px;
+  font-size: 15px;
   font-weight: 500;
   letter-spacing: -0.48px;
   white-space: pre;
@@ -281,7 +281,7 @@ html, body {
 }
 
 .album-section__track-duration {
-  font-size: 15.3px;
+  font-size: 15px;
   font-weight: 500;
   letter-spacing: -0.31px;
   text-align: right;
